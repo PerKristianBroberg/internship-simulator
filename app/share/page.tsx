@@ -1,13 +1,32 @@
 "use client";
-import React from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "../components/Footer";
 
-export default function SharePage() {
+// Inner component that uses the hooks
+function SharePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const result = searchParams.get("result"); // "lucky" or "unlucky"
-  const lucky = result === "lucky";
+  const [ready, setReady] = useState(false);
+  const [lucky, setLucky] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const result = searchParams.get("result");
+    if (!result) {
+      router.replace("/");
+      return;
+    }
+    setLucky(result === "lucky");
+    setReady(true);
+  }, [searchParams, router]);
+
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black text-zinc-700 dark:text-zinc-200">
+        <p className="animate-pulse">Preparing your share summary...</p>
+      </div>
+    );
+  }
 
   const journeySummary = `
 - Uploaded a CV that wasn’t readable by the system 
@@ -32,7 +51,7 @@ Just finished the Internship Application Simulator™, a painfully accurate paro
 
 Here’s what I had to do before being rejected by chance:
 ${journeySummary}
-#InternshipSimulator #JobHunt #FailureIsExperience #CorporateNonsense \n`;
+#InternshipSimulator #JobHunt #FailureIsExperience #CorporateNonsense`;
 
   const handleShare = () => {
     const text = encodeURIComponent(shareText);
@@ -58,7 +77,6 @@ ${journeySummary}
             : "Sadly, your fake application was rejected by our AI fairness model — but your resilience is unmatched."}
         </p>
 
-        {/* Share preview box */}
         <div className="max-w-md w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 p-6 text-left shadow-sm mb-10">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
             Your Share Preview
@@ -71,7 +89,6 @@ ${journeySummary}
           </div>
         </div>
 
-        {/* Buttons */}
         <button
           onClick={handleShare}
           className="rounded-full bg-[#0A66C2] px-8 py-3 text-lg font-medium text-white hover:bg-[#004182] transition"
@@ -86,13 +103,12 @@ ${journeySummary}
           Return to Home
         </button>
 
-        {/* Footer Info */}
         <div className="mt-12 max-w-lg text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
           <p>
             <strong>About this project:</strong> The Internship Application Simulator
-            is a parody web experience created for humor and reflection —
-            exaggerating the over-engineered, repetitive, and occasionally
-            soul-draining internship application process.
+            is a parody web experience created for humor and reflection — exaggerating
+            the over-engineered, repetitive, and occasionally soul-draining internship
+            application process.
           </p>
           <p className="mt-3">
             No data is stored or transmitted — everything runs entirely in your browser.
@@ -102,5 +118,14 @@ ${journeySummary}
       </main>
       <Footer />
     </div>
+  );
+}
+
+// ✅ Wrap with Suspense boundary so build won't fail
+export default function SharePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <SharePageInner />
+    </Suspense>
   );
 }
