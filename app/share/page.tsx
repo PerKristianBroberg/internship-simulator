@@ -1,23 +1,42 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "../components/Footer";
 
 export default function SharePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const result = searchParams.get("result"); // "lucky" or "unlucky"
+  const lucky = result === "lucky";
+
+  const journeySummary = `
+- Uploaded a CV that wasn’t readable by the system 
+- Manually re-entered my entire education & work history 
+- Wrote a “mandatory” motivational cover letter 
+- Recorded a 50-second corporate-approved motivation video 
+- Passed the Corporate Ethics Acknowledgment Quiz by abandoning all morals 
+- Solved logic puzzles with no actual logic 
+- Completed a personality test that declared me “Concerningly Unstable” 
+- Faced a final corporate coin toss deciding my entire fate 
+`;
+
+  const shareText = lucky
+    ? `I got lucky — my application survived the corporate coin toss!  
+Just finished the Internship Application Simulator™, a brutal satire of modern hiring hoops.  
+
+Here’s what I had to do to “earn” my spot:
+${journeySummary}
+#InternshipSimulator #CareerLuck #CorporateSurvivor #ModernRecruitment`
+    : `I got unlucky — my fake application was filtered out by the AI fairness model.  
+Just finished the Internship Application Simulator™, a painfully accurate parody of the job process.  
+
+Here’s what I had to do before being rejected by chance:
+${journeySummary}
+#InternshipSimulator #JobHunt #FailureIsExperience #CorporateNonsense \n`;
 
   const handleShare = () => {
-    // Encode both the text and the URL properly
-    const text = encodeURIComponent(
-      `Just completed the Internship Application Simulator 🧠💼
-Apparently, I'm below average in both logic and personality — a bold start to my career journey! 
-#InternshipSimulator #SelfGrowth #JobReady`
-    
-    );
-
+    const text = encodeURIComponent(shareText);
     const url = encodeURIComponent("https://internship-simulator.vercel.app");
-
-    // ✅ This opens the LinkedIn post composer with the project link prefilled
     window.open(
       `https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`,
       "_blank"
@@ -32,10 +51,11 @@ Apparently, I'm below average in both logic and personality — a bold start to 
         </h1>
 
         <p className="max-w-lg text-lg text-zinc-600 dark:text-zinc-400 mb-10">
-          You’ve successfully completed the{" "}
-          <span className="font-semibold">Internship Application Simulator</span> — 
-          a satirical web experience highlighting the sometimes absurd hoops 
-          students jump through in modern recruitment.
+          You’ve completed the{" "}
+          <span className="font-semibold">Internship Application Simulator™</span>.{" "}
+          {lucky
+            ? "Against all odds, your fake application has been approved for further bureaucratic suffering."
+            : "Sadly, your fake application was rejected by our AI fairness model — but your resilience is unmatched."}
         </p>
 
         {/* Share preview box */}
@@ -43,10 +63,8 @@ Apparently, I'm below average in both logic and personality — a bold start to 
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
             Your Share Preview
           </h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-            "Just completed the Internship Application Simulator 🧠💼  
-            Apparently, I'm below average in both logic and personality — 
-            a bold start to my career journey!"
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 whitespace-pre-line">
+            {shareText}
           </p>
           <div className="rounded-md bg-zinc-100 dark:bg-zinc-800 p-3 text-sm text-zinc-500 dark:text-zinc-400 italic">
             internship-simulator.vercel.app
@@ -68,18 +86,17 @@ Apparently, I'm below average in both logic and personality — a bold start to 
           Return to Home
         </button>
 
-        {/* Satire info */}
+        {/* Footer Info */}
         <div className="mt-12 max-w-lg text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
           <p>
-            <strong>About this project:</strong> The Internship Application
-            Simulator is a parody web experience created for humor and reflection
-            — exaggerating the over-engineered, repetitive, and occasionally
+            <strong>About this project:</strong> The Internship Application Simulator
+            is a parody web experience created for humor and reflection —
+            exaggerating the over-engineered, repetitive, and occasionally
             soul-draining internship application process.
           </p>
           <p className="mt-3">
-            It doesn’t store, send, or process any data. Everything runs
-            entirely in your browser — this is 100% client-side satire, built to
-            make you laugh at how real it feels.
+            No data is stored or transmitted — everything runs entirely in your browser.
+            This is 100% client-side satire, built to make you laugh (and maybe cry).
           </p>
         </div>
       </main>

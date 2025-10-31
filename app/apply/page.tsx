@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Footer from "../components/Footer";
-import { useRouter } from "next/navigation"; // ✅ Correct import
+import { useRouter } from "next/navigation";
 
 export default function Apply() {
-  const router = useRouter(); // ✅ Correct hook usage
+  const router = useRouter();
   const [fileName, setFileName] = useState<string | null>(null);
   const [uploaded, setUploaded] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -16,12 +16,19 @@ export default function Apply() {
   const [workList, setWorkList] = useState([
     { company: "", role: "", description: "" },
   ]);
+  const [personalInfo, setPersonalInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+  const [errors, setErrors] = useState<string[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setFileName(file.name);
-      setTimeout(() => setUploaded(true), 1500); // simulate upload delay
+      setTimeout(() => setUploaded(true), 1500);
     }
   };
 
@@ -33,22 +40,55 @@ export default function Apply() {
     setWorkList([...workList, { company: "", role: "", description: "" }]);
   };
 
+  const validateForm = () => {
+    const newErrors: string[] = [];
+
+    // Personal info validation
+    Object.entries(personalInfo).forEach(([key, val]) => {
+      if (!val.trim()) newErrors.push(key);
+    });
+
+    // Education validation
+    educationList.forEach((edu, idx) => {
+      if (!edu.university.trim() || !edu.program.trim() || !edu.gpa.trim()) {
+        newErrors.push(`education-${idx}`);
+      }
+    });
+
+    // Work validation
+    workList.forEach((work, idx) => {
+      if (!work.company.trim() || !work.role.trim() || !work.description.trim()) {
+        newErrors.push(`work-${idx}`);
+      }
+    });
+
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      router.push("/coverletter");
+    } else {
+      alert(
+        "❌ Please fill out all required fields before proceeding. Corporate compliance requires full data completeness."
+      );
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-between bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 flex-col w-full max-w-2xl items-center justify-center gap-10 px-6 py-20 text-center sm:py-32 sm:px-16">
         {!showManualForm ? (
           <>
-            {/* Step 1: Upload */}
             <h1 className="text-4xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
               Upload Your CV
             </h1>
             <p className="max-w-lg text-lg leading-8 text-zinc-600 dark:text-zinc-400">
               Please upload your most recent CV or resume in PDF or Word format.
-              Ensure your document includes your contact information,
-              educational background, and relevant experience.
+              Ensure it includes your full history, achievements, and your cat’s name.
             </p>
 
-            {/* Upload box */}
             <label
               htmlFor="cvUpload"
               className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-zinc-400 bg-white px-10 py-16 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
@@ -68,7 +108,6 @@ export default function Apply() {
               </span>
             </label>
 
-            {/* Upload messages */}
             {fileName && !uploaded && (
               <p className="text-zinc-500 dark:text-zinc-400 animate-pulse">
                 Uploading file, please wait...
@@ -81,7 +120,6 @@ export default function Apply() {
                   ✅ Your CV has been uploaded successfully.
                 </p>
 
-                {/* Confirmation checkbox */}
                 <div className="flex items-center gap-3 mt-4">
                   <input
                     id="confirm"
@@ -94,11 +132,10 @@ export default function Apply() {
                     htmlFor="confirm"
                     className="text-sm text-zinc-700 dark:text-zinc-300"
                   >
-                    I confirm that my personal information is correct.
+                    I confirm that my personal information is correct (or close enough).
                   </label>
                 </div>
 
-                {/* Continue button */}
                 <button
                   disabled={!confirmed}
                   onClick={() => setShowManualForm(true)}
@@ -115,14 +152,12 @@ export default function Apply() {
           </>
         ) : (
           <>
-            {/* Step 2: Manual Entry */}
             <h1 className="text-4xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
               Complete Your Application
             </h1>
             <p className="max-w-lg text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-              Unfortunately, our system could not extract your details from the
-              uploaded CV. Please fill in all required information manually to
-              continue your application.
+              Our system failed to read your CV (as always).  
+              Please re-enter every detail manually for your convenience.
             </p>
 
             <form className="w-full flex flex-col gap-8 text-left">
@@ -132,26 +167,30 @@ export default function Apply() {
                   Personal Information
                 </h2>
                 <div className="flex flex-col gap-4">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    className="rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    className="rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    className="rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Address"
-                    className="rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                  />
+                  {["name", "email", "phone", "address"].map((field) => (
+                    <input
+                      key={field}
+                      type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
+                      placeholder={
+                        field === "name"
+                          ? "Full Name"
+                          : field === "email"
+                          ? "Email Address"
+                          : field === "phone"
+                          ? "Phone Number"
+                          : "Address"
+                      }
+                      value={(personalInfo as any)[field]}
+                      onChange={(e) =>
+                        setPersonalInfo({ ...personalInfo, [field]: e.target.value })
+                      }
+                      className={`rounded-md border px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 ${
+                        errors.includes(field)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white"
+                      }`}
+                    />
+                  ))}
                 </div>
               </section>
 
@@ -160,32 +199,59 @@ export default function Apply() {
                 <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
                   Education
                 </h2>
-                {educationList.map((_, index) => (
+                {educationList.map((edu, index) => (
                   <div key={index} className="mb-6 border-b border-zinc-200 pb-4 dark:border-zinc-700">
                     <input
                       type="text"
                       placeholder="University Name"
-                      className="w-full mb-2 rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      value={edu.university}
+                      onChange={(e) => {
+                        const updated = [...educationList];
+                        updated[index].university = e.target.value;
+                        setEducationList(updated);
+                      }}
+                      className={`w-full mb-2 rounded-md border px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 ${
+                        errors.includes(`education-${index}`)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white"
+                      }`}
                     />
-                    <select
-                      className="w-full mb-2 rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                    >
-                      <option value="">Program / Degree</option>
-                      <option value="bachelor">Bachelor’s</option>
-                      <option value="master">Master’s</option>
-                      <option value="phd">PhD</option>
-                    </select>
+                    <input
+                      type="text"
+                      placeholder="Program / Degree"
+                      value={edu.program}
+                      onChange={(e) => {
+                        const updated = [...educationList];
+                        updated[index].program = e.target.value;
+                        setEducationList(updated);
+                      }}
+                      className={`w-full mb-2 rounded-md border px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 ${
+                        errors.includes(`education-${index}`)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white"
+                      }`}
+                    />
                     <input
                       type="text"
                       placeholder="GPA (e.g. 3.8/5.0)"
-                      className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      value={edu.gpa}
+                      onChange={(e) => {
+                        const updated = [...educationList];
+                        updated[index].gpa = e.target.value;
+                        setEducationList(updated);
+                      }}
+                      className={`w-full rounded-md border px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 ${
+                        errors.includes(`education-${index}`)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white"
+                      }`}
                     />
                   </div>
                 ))}
                 <button
                   type="button"
                   onClick={addEducation}
-                  className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 >
                   Add Another Education
                 </button>
@@ -196,29 +262,59 @@ export default function Apply() {
                 <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-100 mb-3">
                   Work Experience
                 </h2>
-                {workList.map((_, index) => (
+                {workList.map((work, index) => (
                   <div key={index} className="mb-6 border-b border-zinc-200 pb-4 dark:border-zinc-700">
                     <input
                       type="text"
                       placeholder="Company Name"
-                      className="w-full mb-2 rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      value={work.company}
+                      onChange={(e) => {
+                        const updated = [...workList];
+                        updated[index].company = e.target.value;
+                        setWorkList(updated);
+                      }}
+                      className={`w-full mb-2 rounded-md border px-3 py-2 ${
+                        errors.includes(`work-${index}`)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      }`}
                     />
                     <input
                       type="text"
                       placeholder="Role / Position"
-                      className="w-full mb-2 rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      value={work.role}
+                      onChange={(e) => {
+                        const updated = [...workList];
+                        updated[index].role = e.target.value;
+                        setWorkList(updated);
+                      }}
+                      className={`w-full mb-2 rounded-md border px-3 py-2 ${
+                        errors.includes(`work-${index}`)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      }`}
                     />
                     <textarea
                       rows={3}
                       placeholder="Describe your responsibilities"
-                      className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      value={work.description}
+                      onChange={(e) => {
+                        const updated = [...workList];
+                        updated[index].description = e.target.value;
+                        setWorkList(updated);
+                      }}
+                      className={`w-full rounded-md border px-3 py-2 ${
+                        errors.includes(`work-${index}`)
+                          ? "border-red-500"
+                          : "border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                      }`}
                     />
                   </div>
                 ))}
                 <button
                   type="button"
                   onClick={addWork}
-                  className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 >
                   Add Another Job
                 </button>
@@ -227,8 +323,8 @@ export default function Apply() {
               {/* Submit */}
               <button
                 type="button"
-                onClick={() => router.push("/logical")} // ✅ now works correctly
-                className="mt-8 rounded-full bg-black px-8 py-3 text-lg font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                onClick={handleSubmit}
+                className="mt-8 rounded-full bg-black px-8 py-3 text-lg font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
               >
                 Submit Information
               </button>
