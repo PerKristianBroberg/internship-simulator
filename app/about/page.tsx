@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import Footer from "../components/Footer";
 import { useRouter } from "next/navigation";
@@ -35,7 +36,8 @@ export default function AboutPage() {
               The “tests” and “results” are <strong>completely random</strong> and have no real scoring logic.
             </li>
             <li>
-              No analytics, cookies, or tracking are used. Your data doesn’t leave your computer.
+              Basic, <strong>privacy-friendly analytics</strong> (via Vercel Analytics) are used only to
+              measure general site traffic — no cookies, personal data, or tracking are involved.
             </li>
             <li>
               The site exists purely for entertainment, parody, and education in front-end development.
