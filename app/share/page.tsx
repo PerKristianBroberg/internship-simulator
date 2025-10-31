@@ -7,14 +7,19 @@ export default function SharePage() {
   const router = useRouter();
 
   const handleShare = () => {
+    // Encode both the text and the URL properly
     const text = encodeURIComponent(
       `Just completed the Internship Application Simulator 🧠💼
 Apparently, I'm below average in both logic and personality — a bold start to my career journey! 
 #InternshipSimulator #SelfGrowth #JobReady`
+    
     );
-    const url = encodeURIComponent("https://internship-simulator.fake/results");
+
+    const url = encodeURIComponent("https://internship-simulator.vercel.app");
+
+    // ✅ This opens the LinkedIn post composer with the project link prefilled
     window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${url}&text=${text}`,
+      `https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`,
       "_blank"
     );
   };
@@ -27,28 +32,33 @@ Apparently, I'm below average in both logic and personality — a bold start to 
         </h1>
 
         <p className="max-w-lg text-lg text-zinc-600 dark:text-zinc-400 mb-10">
-          You’ve successfully completed the <span className="font-semibold">Internship Application Simulator</span> —
-          a satirical project highlighting the sometimes absurd hoops students jump through in modern recruitment.
+          You’ve successfully completed the{" "}
+          <span className="font-semibold">Internship Application Simulator</span> — 
+          a satirical web experience highlighting the sometimes absurd hoops 
+          students jump through in modern recruitment.
         </p>
 
+        {/* Share preview box */}
         <div className="max-w-md w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 p-6 text-left shadow-sm mb-10">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
             Your Share Preview
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
             "Just completed the Internship Application Simulator 🧠💼  
-            Apparently, I'm below average in both logic and personality — a bold start to my career journey!"
+            Apparently, I'm below average in both logic and personality — 
+            a bold start to my career journey!"
           </p>
           <div className="rounded-md bg-zinc-100 dark:bg-zinc-800 p-3 text-sm text-zinc-500 dark:text-zinc-400 italic">
-            internship-simulator.fake/results
+            internship-simulator.vercel.app
           </div>
         </div>
 
+        {/* Buttons */}
         <button
           onClick={handleShare}
           className="rounded-full bg-[#0A66C2] px-8 py-3 text-lg font-medium text-white hover:bg-[#004182] transition"
         >
-          Post on LinkedIn
+          Proceed on LinkedIn
         </button>
 
         <button
@@ -58,15 +68,18 @@ Apparently, I'm below average in both logic and personality — a bold start to 
           Return to Home
         </button>
 
+        {/* Satire info */}
         <div className="mt-12 max-w-lg text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
           <p>
-            <strong>About this project:</strong> The Internship Application Simulator is a parody web experience that
-            exaggerates the repetitive, over-engineered, and emotionally draining process of applying for internships.
-            It’s not meant to mock applicants — it’s meant to laugh *with* them.
+            <strong>About this project:</strong> The Internship Application
+            Simulator is a parody web experience created for humor and reflection
+            — exaggerating the over-engineered, repetitive, and occasionally
+            soul-draining internship application process.
           </p>
           <p className="mt-3">
-            Every screen, delay, and “assessment” is intentionally designed to feel a little too real — because, well,
-            it often is.
+            It doesn’t store, send, or process any data. Everything runs
+            entirely in your browser — this is 100% client-side satire, built to
+            make you laugh at how real it feels.
           </p>
         </div>
       </main>
